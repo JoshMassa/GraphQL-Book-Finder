@@ -1,11 +1,11 @@
 const { User } = require('../models');
-const { signToken } = require('../utils/auth');
+const { signToken, AuthenticationError } = require('../utils/auth');
 
 const resolvers = {
     Query: {
         me: async (_, __, context) => {
             if (!context.user) {
-                throw new Error('Not authenticated');
+                throw AuthenticationError;
             }
             const foundUser = await User.findById(context.user._id).populate('savedBooks');
             if (!foundUser) {
@@ -23,7 +23,7 @@ const resolvers = {
 
             const correctPw = await user.isCorrectPassword(password);
             if (!correctPw) {
-                throw new Error('Incorrect username or password');
+                throw AuthenticationError;
             }
 
             const token = signToken(user);
@@ -40,7 +40,7 @@ const resolvers = {
         },
         saveBook: async (_, { book }, context) => {
             if (!context.user) {
-                throw new Error('Not authenticated');
+                throw AuthenticationError;
             }
 
             try {
@@ -57,7 +57,7 @@ const resolvers = {
         },
         removeBook: async (_, { bookId }, context) => {
             if (!context.user) {
-                throw new Error('Not authenticated');
+                throw AuthenticationError;
             }
 
             const updatedUser = await User.findOneAndUpdate(
