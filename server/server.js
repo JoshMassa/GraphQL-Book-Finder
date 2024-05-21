@@ -12,7 +12,10 @@ const app = express();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => authMiddleware({ req }),
+  context: ({ req }) => {
+    authMiddleware(req);
+    // return { user: req.user };
+  },
 });
 
 const startApolloServer = async () => {
@@ -23,6 +26,8 @@ const startApolloServer = async () => {
   app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }));
 
   app.use('/graphql', expressMiddleware(server));

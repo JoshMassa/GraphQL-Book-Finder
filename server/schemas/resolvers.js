@@ -4,6 +4,7 @@ const { signToken, AuthenticationError } = require('../utils/auth');
 const resolvers = {
     Query: {
         me: async (_, __, context) => {
+            console.log('context', context);
             if (!context.user) {
                 throw AuthenticationError;
             }
@@ -16,29 +17,47 @@ const resolvers = {
     },
     Mutation: {
         login: async (_, { email, password }) => {
-            const user = await User.findOne({ $or: [{ username: email }, { email }] });
-            if (!user) {
-                throw new Error('No user found with that ID');
-            }
 
-            const correctPw = await user.isCorrectPassword(password);
-            if (!correctPw) {
-                throw AuthenticationError;
-            }
+            try {
+                const user = await User.findOne({ email });
+                if (!user) {
+                    throw new Error('No user found with that email');
+                }
 
-            const token = signToken(user);
-            return { token, user };
+                const correctPw = await user.isCorrectPassword(password);
+                if (!correctPw) {
+                    throw AuthenticationError;
+                }
+    
+                const token = signToken(user);
+                console.log('User signed in:', user);
+                console.log('Token:', token);
+                return { token, user };
+            } catch (err) {
+                console.error('Error logging in', err);
+                throw new Error('Error logging in');
+            }
         },
         addUser: async (_, { username, email, password }) => {
-            const user = await User.create({ username, email, password });
-            if (!user) {
-                throw new Error('Unable to add new user');
-            }
 
-            const token = signToken(user);
-            return { token, user };
+            try {
+                const user = await User.create({ username, email, password });
+                if (!user) {
+                    throw new Error('Unable to add new user');
+                }
+
+                const token = signToken(user);
+                console.log('User created:', user);
+                console.log('Token:', token);
+                return { token, user };
+            } catch (err) {
+                console.error('Error creating user:', err);
+                throw new Error('Error creating user');
+            }
         },
         saveBook: async (_, { book }, context) => {
+            console.log('context', context);
+            console.log('book', book);
             if (!context.user) {
                 throw AuthenticationError;
             }
@@ -51,7 +70,7 @@ const resolvers = {
                 ).populate('savedBooks');
                 return updatedUser;
             } catch (err) {
-                console.log('error: ', err);
+                console.log('Error saving book: ', err);
                 throw new Error('Unable to save book');
             }
         },
@@ -60,15 +79,20 @@ const resolvers = {
                 throw AuthenticationError;
             }
 
-            const updatedUser = await User.findOneAndUpdate(
-                { _id: context.user._id },
-                { $pull: { savedBooks: { bookId } } },
-                { new: true }
-            ).populate('savedBooks');
-            if (!updatedUser) {
-                throw new Error('Could not find a user with that ID');
+            try {
+                const updatedUser = await User.findOneAndUpdate(
+                    { _id: context.user._id },
+                    { $pull: { savedBooks: { bookId } } },
+                    { new: true }
+                ).populate('savedBooks');
+                if (!updatedUser) {
+                    throw new Error('Could not find a user with that ID');
+                }
+                return updatedUser;
+            } catch (err) {
+                console.log('Error removing book:', err);
+                throw new Error('Unable to remove book');
             }
-            return updatedUser;
         },
     },
 };

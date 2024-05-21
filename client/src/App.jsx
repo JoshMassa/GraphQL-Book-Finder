@@ -2,13 +2,15 @@ import './App.css';
 import { Outlet } from 'react-router-dom';
 import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import Auth from './utils/auth';
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3001/graphql',
+  uri: '/graphql',
 });
 
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('id_token');
+  const token = Auth.getToken();
+  console.log('token', token);
   return {
     headers: {
       ...headers,
@@ -16,10 +18,12 @@ const authLink = setContext((_, { headers }) => {
     },
   };
 });
+console.log('authLink', authLink);
 
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
+  credentials: 'include',
 });
 
 import Navbar from './components/Navbar';
