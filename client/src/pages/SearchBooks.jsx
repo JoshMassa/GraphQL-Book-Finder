@@ -22,11 +22,11 @@ const SearchBooks = () => {
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
   // GraphQL Mutation hook
-  const [saveThisBook] = useMutation(SAVE_BOOK);
+  const [saveBook] = useMutation(SAVE_BOOK);
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
-    return () => saveBookIds(savedBookIds);
+    saveBookIds(savedBookIds);
   });
 
   // create method to search for books and set state on form submit
@@ -74,7 +74,7 @@ const SearchBooks = () => {
     }
 
     try {
-      const { data } = await saveThisBook({
+      const { data } = await saveBook({
         variables: {
           book: {
             bookId: bookToSave.bookId,
@@ -82,11 +82,6 @@ const SearchBooks = () => {
             description: bookToSave.description,
             title: bookToSave.title,
             image: bookToSave.image
-          },
-        },
-        context: {
-          headers: {
-            authorization: `Bearer ${token}`,
           },
         },
       });
