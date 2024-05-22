@@ -11,27 +11,22 @@ module.exports = {
       code: 'UNAUTHENTICATED',
     },
   }),
-  authMiddleware: function (req) {
+  authMiddleware: function ({ req }) {
     let token = req.body.token || req.query.token || req.headers.authorization;
-    console.log('token', token);
+    // console.log('token from authMiddleware', token);
     if (req.headers.authorization) {
       token = token.split(' ').pop().trim();
     }
 
     if (!token) {
-      console.log('No token provided');
       return req;
     }
 
-    console.log('Token Received: ', token);
-
     try {
-      const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      console.log('Token verified: ', data);
-      req.user = data;
+      const payload = jwt.verify(token, secret, { maxAge: expiration });
+      req.user = payload;
       return req;
     } catch (err) {
-      console.log('Token verification error: ', err.message);
       throw new GraphQLError('Invalid token');
     }
   },

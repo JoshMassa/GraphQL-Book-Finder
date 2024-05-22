@@ -30,8 +30,6 @@ const resolvers = {
                 }
     
                 const token = signToken(user);
-                console.log('User signed in:', user);
-                console.log('Token:', token);
                 return { token, user };
             } catch (err) {
                 console.error('Error logging in', err);
@@ -47,8 +45,6 @@ const resolvers = {
                 }
 
                 const token = signToken(user);
-                console.log('User created:', user);
-                console.log('Token:', token);
                 return { token, user };
             } catch (err) {
                 console.error('Error creating user:', err);
