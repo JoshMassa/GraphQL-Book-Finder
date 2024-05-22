@@ -90,7 +90,6 @@ const SearchBooks = () => {
           },
         },
       });
-      console.log('data:', data);
 
       if (!data) {
         throw new Error('Something went wrong!');

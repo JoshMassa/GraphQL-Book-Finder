@@ -4,7 +4,6 @@ const { signToken, AuthenticationError } = require('../utils/auth');
 const resolvers = {
     Query: {
         me: async (_, __, context) => {
-            console.log('context', context);
             if (!context.user) {
                 throw AuthenticationError;
             }
@@ -52,8 +51,6 @@ const resolvers = {
             }
         },
         saveBook: async (_, { book }, context) => {
-            console.log('context', context);
-            console.log('book', book);
             if (!context.user) {
                 throw AuthenticationError;
             }
